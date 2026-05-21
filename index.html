@@ -42,18 +42,9 @@
                 </h3>
 
                 <div class="border border-gray-200 bg-gray-50 rounded-xl p-5 flex flex-col items-center mb-5">
-                    
-                    <!-- Modified QR Code Container -->
-                    <div class="flex flex-col items-center mb-4">
-                        <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-100 mb-2">
-                            <img id="qrCodeImage" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi%3A%2F%2Fpay%3Fpa%3Dpaytmqrpmivwx2rxg%40paytm%26pn%3DJAYADEEP%2520KHETRI%26am%3D1.00%26cu%3DINR" alt="QR Code" class="h-32 w-32">
-                        </div>
-                        <button id="downloadQrBtn" class="text-[11px] text-gray-600 hover:text-blue-600 font-semibold flex items-center gap-1.5 transition bg-white px-2.5 py-1.5 rounded-md border border-gray-200 shadow-sm hover:border-blue-300">
-                            <i class="fas fa-download"></i> Download QR
-                        </button>
+                    <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-100 mb-4">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi%3A%2F%2Fpay%3Fpa%3Dpaytmqrpmivwx2rxg%40paytm%26pn%3DJAYADEEP%2520KHETRI%26am%3D1.00%26cu%3DINR" alt="QR Code" class="h-32 w-32">
                     </div>
-                    <!-- End Modified QR Code Container -->
-
                     <p class="text-xs text-gray-500 mb-3 font-medium">Supported UPI Apps</p>
                     <div class="flex gap-3 justify-center">
                         <div class="bg-white border border-gray-200 px-3 py-1.5 rounded-md flex items-center shadow-sm">
@@ -110,6 +101,147 @@
 
             <div id="successState" class="hidden w-full slide-up">
                 <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4 border-4 border-white shadow-lg">
+                    <i class="fas fa-check text-2xl text-green-600"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">Payment Successful</h2>
+                <p class="text-gray-500 text-sm mb-6">UTR Verified successfully! Click below to download your file.</p>
+                
+                <a id="downloadLink" href="https://google.com/file.zip" target="_blank" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-download"></i> Download File Now
+                </a>
+            </div>
+
+            <div id="failedState" class="hidden w-full slide-up">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4 border-4 border-white shadow-lg">
+                    <i class="fas fa-exclamation text-2xl text-red-600"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">Verification Timeout</h2>
+                <p class="text-gray-500 text-sm mb-6">We couldn't verify the payment yet. Ensure you entered correct UTR number.</p>
+                <button onclick="location.reload()" class="w-full bg-gray-900 hover:bg-black text-white font-medium py-3 px-4 rounded-lg transition duration-200">
+                    Try Again
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // Firebase Setup configuration (Project: paymentupi-b296e)
+        const firebaseConfig = {
+            apiKey: "AIzaSyADQ5Z6DoFn24FQFkdPuSBLVvryxnFnJ_E",
+            authDomain: "paymentupi-b296e.firebaseapp.com",
+            projectId: "paymentupi-b296e",
+            storageBucket: "paymentupi-b296e.firebasestorage.app",
+            messagingSenderId: "771713136159",
+            appId: "1:771713136159:web:4f7e6cdc4d4139c564872a",
+            measurementId: "G-627F28W2HT"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        let timerInterval;
+        let unsubscribeFirestore = null;
+
+        window.showScreen = function(screenId) {
+            document.getElementById('paymentScreen').style.display = 'none';
+            const target = document.getElementById(screenId);
+            target.classList.remove('hidden');
+            target.classList.add('flex'); 
+        };
+
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const utr = document.getElementById('utrInput').value.trim();
+            if(utr === "" || utr.length < 8) {
+                alert("Please enter a valid Transaction UTR / Ref Number.");
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = "<i class='fas fa-circle-notch fa-spin'></i> Security Checking...";
+            btn.disabled = true;
+
+            try {
+                // =========================================================================
+                // ANTI-FRAUD: DUPLICATE UTR BLOCKING SYSTEM
+                // =========================================================================
+                const duplicateQuery = query(collection(db, "purchases"), where("utr", "==", utr));
+                const querySnapshot = await getDocs(duplicateQuery);
+                
+                if (!querySnapshot.empty) {
+                    alert("🚨 Security Block: This UTR has already been used to unlock a file! Duplicate requests are strictly prohibited.");
+                    btn.innerHTML = "Verify Payment";
+                    btn.disabled = false;
+                    return; // Process terminated here, data won't insert
+                }
+                // =========================================================================
+
+                btn.innerHTML = "<i class='fas fa-circle-notch fa-spin'></i> Initializing Secure Verification...";
+
+                const docRef = await addDoc(collection(db, "purchases"), {
+                    utr: utr,
+                    status: "pending",
+                    timestamp: new Date()
+                });
+
+                showScreen('processingScreen');
+                startTimer(120); 
+
+                // Realtime data listener
+                unsubscribeFirestore = onSnapshot(doc(db, "purchases", docRef.id), (docSnap) => {
+                    if (docSnap.exists() && docSnap.data().status === "approved") {
+                        clearInterval(timerInterval);
+                        if (unsubscribeFirestore) unsubscribeFirestore();
+                        showSuccess();
+                    }
+                });
+
+            } catch (error) {
+                console.error("Database Error: ", error);
+                alert("Database Connection error. Please verify your Cloud Firestore Security Rules.");
+                btn.innerHTML = "Verify Payment";
+                btn.disabled = false;
+            }
+        });
+
+        function startTimer(duration) {
+            let timer = duration, minutes, seconds;
+            timerInterval = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                document.getElementById('timerText').textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(timerInterval);
+                    if (unsubscribeFirestore) unsubscribeFirestore(); 
+                    showFailed();
+                }
+            }, 1000);
+        }
+
+        function showSuccess() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('failedState').classList.add('hidden'); 
+            document.getElementById('successState').classList.remove('hidden');
+        }
+
+        function showFailed() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('successState').classList.add('hidden'); 
+            document.getElementById('failedState').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
                     <i class="fas fa-check text-2xl text-green-600"></i>
                 </div>
                 <h2 class="text-xl font-bold text-gray-900 mb-2">Payment Successful</h2>
