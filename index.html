@@ -7,11 +7,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: rgba(17, 24, 39, 0.95); backdrop-filter: blur(5px); }
+        body {
+            background-color: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(5px);
+        }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 font-sans text-gray-900">
@@ -43,9 +49,11 @@
 
                 <div class="border border-gray-200 bg-gray-50 rounded-xl p-5 flex flex-col items-center mb-5">
                     <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-100 mb-4">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi%3A%2F%2Fpay%3Fpa%3Dpaytmqrpmivwx2rxg%40paytm%26pn%3DJAYADEEP%2520KHETRI%26am%3D1.00%26cu%3DINR" alt="QR Code" class="h-32 w-32">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi%3A%2F%2Fpay%3Fpa%3Dpaytmqr65y99n%40ptys%26pn%3DScriptMastery%26am%3D1.00%26cu%3DINR" alt="QR Code" class="h-32 w-32">
                     </div>
+                    
                     <p class="text-xs text-gray-500 mb-3 font-medium">Supported UPI Apps</p>
+                    
                     <div class="flex gap-3 justify-center">
                         <div class="bg-white border border-gray-200 px-3 py-1.5 rounded-md flex items-center shadow-sm">
                             <span class="font-bold text-[13px] tracking-tight"><span class="text-blue-500">G</span><span class="text-red-500">P</span><span class="text-yellow-500">a</span><span class="text-green-500">y</span></span>
@@ -66,9 +74,9 @@
                 </div>
 
                 <div class="mb-5">
-                    <label class="block text-gray-700 text-xs font-semibold mb-2">Enter Transaction UTR / Ref No.</label>
+                    <label class="block text-gray-700 text-xs font-semibold mb-2">Enter Order ID</label>
                     <div class="relative">
-                        <input type="text" id="utrInput" placeholder="e.g. 4123XXXXXXXX" class="w-full bg-white border border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm font-mono tracking-wider shadow-inner">
+                        <input type="text" id="utrInput" placeholder="e.g. ORDER12345678" class="w-full bg-white border border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm font-mono tracking-wider shadow-inner">
                         <i class="fas fa-keyboard absolute right-4 top-1/2 -translate-y-1/2 text-gray-300"></i>
                     </div>
                 </div>
@@ -84,7 +92,7 @@
             </div>
         </div>
 
-        <div id="processingScreen" class="hidden p-8 text-center min-h-[400px] flex-col justify-center items-center">
+        <div id="processingScreen" class="hidden p-8 text-center min-h-[400px] flex flex-col justify-center items-center">
             
             <div id="loadingState" class="block w-full">
                 <div class="relative w-16 h-16 mx-auto mb-6">
@@ -92,8 +100,8 @@
                     <div class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
                     <i class="fas fa-university absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-600 text-xl"></i>
                 </div>
-                <h2 class="text-lg font-bold text-gray-900 mb-2">Verifying Payment</h2>
-                <p class="text-gray-500 text-xs mb-6 px-4">Checking your UPI Ref/UTR status via bank secure feeds. Please wait up to 1-2 minutes.</p>
+                <h2 class="text-lg font-bold text-gray-900 mb-2">Processing Payment</h2>
+                <p class="text-gray-500 text-xs mb-6 px-4">Connecting to your bank securely. Please do not press back or refresh.</p>
                 <div class="bg-gray-50 py-3 px-6 rounded-lg inline-block border border-gray-200">
                     <span class="text-gray-800 font-mono font-bold text-xl tracking-widest" id="timerText">02:00</span>
                 </div>
@@ -104,12 +112,127 @@
                     <i class="fas fa-check text-2xl text-green-600"></i>
                 </div>
                 <h2 class="text-xl font-bold text-gray-900 mb-2">Payment Successful</h2>
-                <p class="text-gray-500 text-sm mb-6">UTR Verified successfully! Click below to download your file.</p>
+                <p class="text-gray-500 text-sm mb-6">Order ID Verified. Your file is ready.</p>
                 
-                <a id="downloadLink" href="https://google.com/file.zip" target="_blank" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2">
-                    <i class="fas fa-download"></i> Download File Now
+                <a href="https://www.google.com/" target="_blank" download class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-download"></i> Download Script
                 </a>
             </div>
+
+            <div id="failedState" class="hidden w-full slide-up">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4 border-4 border-white shadow-lg">
+                    <i class="fas fa-exclamation text-2xl text-red-600"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">Verification Failed</h2>
+                <p class="text-gray-500 text-sm mb-6">Timeout or invalid Order ID. If amount deducted, it will be refunded.</p>
+                <button onclick="location.reload()" class="w-full bg-gray-900 hover:bg-black text-white font-medium py-3 px-4 rounded-lg transition duration-200">
+                    Retry Payment
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+  apiKey: "AIzaSyADQ5Z6DoFn24FQFkdPuSBLVvryxnFnJ_E",
+  authDomain: "paymentupi-b296e.firebaseapp.com",
+  projectId: "paymentupi-b296e",
+  storageBucket: "paymentupi-b296e.firebasestorage.app",
+  messagingSenderId: "771713136159",
+  appId: "1:771713136159:web:4f7e6cdc4d4139c564872a",
+  measurementId: "G-627F28W2HT"
+};
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let timerInterval;
+        let unsubscribeFirestore = null; // Fix: Global variable to control listener
+
+        window.showScreen = function(screenId) {
+            document.getElementById('paymentScreen').classList.add('hidden');
+            document.getElementById('processingScreen').classList.add('hidden');
+            
+            const target = document.getElementById(screenId);
+            target.classList.remove('hidden');
+            target.classList.add('flex'); 
+        };
+
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const utr = document.getElementById('utrInput').value;
+            if(utr.trim() === "") {
+                alert("Please enter a valid Order ID");
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = "<i class='fas fa-circle-notch fa-spin'></i> Securing...";
+            btn.disabled = true;
+
+            try {
+                const docRef = await addDoc(collection(db, "purchases"), {
+                    utr: utr,
+                    status: "pending",
+                    timestamp: new Date()
+                });
+
+                showScreen('processingScreen');
+                startTimer(120); // Removed docRef.id as it was unused here
+
+                // Store the unsubscribe function
+                unsubscribeFirestore = onSnapshot(doc(db, "purchases", docRef.id), (document) => {
+                    if (document.exists() && document.data().status === "approved") {
+                        clearInterval(timerInterval);
+                        if (unsubscribeFirestore) unsubscribeFirestore(); // Stop listening
+                        showSuccess();
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error: ", error);
+                alert("Database connection error. Check Firebase Rules.");
+                btn.innerHTML = "Verify Payment";
+                btn.disabled = false;
+            }
+        });
+
+        function startTimer(duration) {
+            let timer = duration, minutes, seconds;
+            timerInterval = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                document.getElementById('timerText').textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(timerInterval);
+                    if (unsubscribeFirestore) unsubscribeFirestore(); // Fix: Force stop listening if timeout occurs
+                    showFailed();
+                }
+            }, 1000);
+        }
+
+        function showSuccess() {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('failedState').classList.add('hidden'); // Fix: Ensure failed state is hidden
+            document.getElementById('successState').classList.remove('hidden');
+        }
+
+        function showFailed() {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('successState').classList.add('hidden'); // Fix: Ensure success state is hidden
+            document.getElementById('failedState').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
 
             <div id="failedState" class="hidden w-full slide-up">
                 <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4 border-4 border-white shadow-lg">
