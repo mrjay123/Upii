@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: rgba(17, 24, 39, 0.95); backdrop-filter: blur(5px); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 font-sans text-gray-900">
+
+    <div class="max-w-[400px] w-full bg-white rounded-xl shadow-2xl overflow-hidden slide-up relative">
+        
+        <div id="paymentScreen" class="block">
+            <div class="bg-[#0b1221] text-white p-6 relative">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-400 text-xs uppercase tracking-wider mb-1">Paying to</p>
+                        <h2 class="text-xl font-semibold">Script Mastery</h2>
+                    </div>
+                    <div class="bg-white/10 p-2 rounded-lg">
+                        <i class="fas fa-shield-halved text-green-400 text-xl"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-gray-300 text-xl">₹</span>
+                    <span class="text-3xl font-bold">1.00</span>
+                </div>
+                <div class="absolute -bottom-1 left-0 w-full h-4 bg-white rounded-t-xl"></div>
+            </div>
+
+            <div class="p-6 pt-2">
+                <h3 class="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-qrcode text-blue-600"></i> Scan to Pay via UPI
+                </h3>
+
+                <div class="border border-gray-200 bg-gray-50 rounded-xl p-5 flex flex-col items-center mb-5">
+                    <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-100 mb-4">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi%3A%2F%2Fpay%3Fpa%3Dpaytmqrpmivwx2rxg%40paytm%26pn%3DJAYADEEP%2520KHETRI%26am%3D1.00%26cu%3DINR" alt="QR Code" class="h-32 w-32">
+                    </div>
+                    <p class="text-xs text-gray-500 mb-3 font-medium">Supported UPI Apps</p>
+                    <div class="flex gap-3 justify-center">
+                        <div class="bg-white border border-gray-200 px-3 py-1.5 rounded-md flex items-center shadow-sm">
+                            <span class="font-bold text-[13px] tracking-tight"><span class="text-blue-500">G</span><span class="text-red-500">P</span><span class="text-yellow-500">a</span><span class="text-green-500">y</span></span>
+                        </div>
+                        <div class="bg-[#5f259f] border border-[#5f259f] px-3 py-1.5 rounded-md flex items-center shadow-sm">
+                            <span class="font-bold text-[13px] text-white tracking-tight">पे</span>
+                        </div>
+                        <div class="bg-white border border-[#002970] px-3 py-1.5 rounded-md flex items-center shadow-sm">
+                            <span class="font-bold text-[13px] tracking-tight"><span class="text-[#002970]">Pay</span><span class="text-[#00baf2]">tm</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="h-px bg-gray-200 flex-1"></div>
+                    <span class="text-xs text-gray-400 font-medium uppercase">Step 2</span>
+                    <div class="h-px bg-gray-200 flex-1"></div>
+                </div>
+
+                <div class="mb-5">
+                    <label class="block text-gray-700 text-xs font-semibold mb-2">Enter Transaction UTR / Ref No.</label>
+                    <div class="relative">
+                        <input type="text" id="utrInput" placeholder="e.g. 4123XXXXXXXX" class="w-full bg-white border border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm font-mono tracking-wider shadow-inner">
+                        <i class="fas fa-keyboard absolute right-4 top-1/2 -translate-y-1/2 text-gray-300"></i>
+                    </div>
+                </div>
+
+                <button id="submitBtn" class="w-full bg-[#0b1221] hover:bg-gray-800 text-white font-medium py-3.5 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-md">
+                    Verify Payment
+                </button>
+            </div>
+            
+            <div class="bg-gray-50 p-3 text-center border-t border-gray-100 flex items-center justify-center gap-2">
+                <i class="fas fa-lock text-gray-400 text-xs"></i>
+                <span class="text-[10px] text-gray-500 font-medium uppercase tracking-wider">100% Secure Payments</span>
+            </div>
+        </div>
+
+        <div id="processingScreen" class="hidden p-8 text-center min-h-[400px] flex-col justify-center items-center">
+            
+            <div id="loadingState" class="block w-full">
+                <div class="relative w-16 h-16 mx-auto mb-6">
+                    <div class="absolute inset-0 border-4 border-gray-100 rounded-full"></div>
+                    <div class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+                    <i class="fas fa-university absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-600 text-xl"></i>
+                </div>
+                <h2 class="text-lg font-bold text-gray-900 mb-2">Verifying Payment</h2>
+                <p class="text-gray-500 text-xs mb-6 px-4">Checking your UPI Ref/UTR status via bank secure feeds. Please wait up to 1-2 minutes.</p>
+                <div class="bg-gray-50 py-3 px-6 rounded-lg inline-block border border-gray-200">
+                    <span class="text-gray-800 font-mono font-bold text-xl tracking-widest" id="timerText">02:00</span>
+                </div>
+            </div>
+
+            <div id="successState" class="hidden w-full slide-up">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4 border-4 border-white shadow-lg">
+                    <i class="fas fa-check text-2xl text-green-600"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">Payment Successful</h2>
+                <p class="text-gray-500 text-sm mb-6">UTR Verified successfully! Click below to download your file.</p>
+                
+                <a id="downloadLink" href="https://google.com/file.zip" target="_blank" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-download"></i> Download File Now
+                </a>
+            </div>
+
+            <div id="failedState" class="hidden w-full slide-up">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4 border-4 border-white shadow-lg">
+                    <i class="fas fa-exclamation text-2xl text-red-600"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">Verification Timeout</h2>
+                <p class="text-gray-500 text-sm mb-6">We couldn't verify the payment yet. Ensure you entered correct UTR number.</p>
+                <button onclick="location.reload()" class="w-full bg-gray-900 hover:bg-black text-white font-medium py-3 px-4 rounded-lg transition duration-200">
+                    Try Again
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // Firebase Setup configuration (Project: paymentupi-b296e)
+        const firebaseConfig = {
+            apiKey: "AIzaSyADQ5Z6DoFn24FQFkdPuSBLVvryxnFnJ_E",
+            authDomain: "paymentupi-b296e.firebaseapp.com",
+            projectId: "paymentupi-b296e",
+            storageBucket: "paymentupi-b296e.firebasestorage.app",
+            messagingSenderId: "771713136159",
+            appId: "1:771713136159:web:4f7e6cdc4d4139c564872a",
+            measurementId: "G-627F28W2HT"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        let timerInterval;
+        let unsubscribeFirestore = null;
+
+        window.showScreen = function(screenId) {
+            document.getElementById('paymentScreen').style.display = 'none';
+            const target = document.getElementById(screenId);
+            target.classList.remove('hidden');
+            target.classList.add('flex'); 
+        };
+
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const utr = document.getElementById('utrInput').value.trim();
+            if(utr === "" || utr.length < 8) {
+                alert("Please enter a valid Transaction UTR / Ref Number.");
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = "<i class='fas fa-circle-notch fa-spin'></i> Security Checking...";
+            btn.disabled = true;
+
+            try {
+                // =========================================================================
+                // ANTI-FRAUD: DUPLICATE UTR BLOCKING SYSTEM
+                // =========================================================================
+                const duplicateQuery = query(collection(db, "purchases"), where("utr", "==", utr));
+                const querySnapshot = await getDocs(duplicateQuery);
+                
+                if (!querySnapshot.empty) {
+                    alert("🚨 Security Block: This UTR has already been used to unlock a file! Duplicate requests are strictly prohibited.");
+                    btn.innerHTML = "Verify Payment";
+                    btn.disabled = false;
+                    return; // Process terminated here, data won't insert
+                }
+                // =========================================================================
+
+                btn.innerHTML = "<i class='fas fa-circle-notch fa-spin'></i> Initializing Secure Verification...";
+
+                const docRef = await addDoc(collection(db, "purchases"), {
+                    utr: utr,
+                    status: "pending",
+                    timestamp: new Date()
+                });
+
+                showScreen('processingScreen');
+                startTimer(120); 
+
+                // Realtime data listener
+                unsubscribeFirestore = onSnapshot(doc(db, "purchases", docRef.id), (docSnap) => {
+                    if (docSnap.exists() && docSnap.data().status === "approved") {
+                        clearInterval(timerInterval);
+                        if (unsubscribeFirestore) unsubscribeFirestore();
+                        showSuccess();
+                    }
+                });
+
+            } catch (error) {
+                console.error("Database Error: ", error);
+                alert("Database Connection error. Please verify your Cloud Firestore Security Rules.");
+                btn.innerHTML = "Verify Payment";
+                btn.disabled = false;
+            }
+        });
+
+        function startTimer(duration) {
+            let timer = duration, minutes, seconds;
+            timerInterval = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                document.getElementById('timerText').textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(timerInterval);
+                    if (unsubscribeFirestore) unsubscribeFirestore(); 
+                    showFailed();
+                }
+            }, 1000);
+        }
+
+        function showSuccess() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('failedState').classList.add('hidden'); 
+            document.getElementById('successState').classList.remove('hidden');
+        }
+
+        function showFailed() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('successState').classList.add('hidden'); 
+            document.getElementById('failedState').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
